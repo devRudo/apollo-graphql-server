@@ -41,6 +41,17 @@ const typeDefs = `#graphql
     authors: [Author]
     author(id:ID!): Author
   }
+
+  type Mutation{
+    addGame(game: AddGameInput): Game
+    deleteGame(id:ID!): [Game]
+  }
+
+  input AddGameInput{
+    title: String!
+    platform: [String!]!
+  }
+
 `;
 
 // Resolvers define the technique for fetching the types defined in the
@@ -63,6 +74,17 @@ const resolvers = {
   Review: {
     game: (parent) => db.games.find((g) => g.id === parent.game_id),
     author: (parent) => db.authors.find((r) => r.id === parent.author_id),
+  },
+  Mutation: {
+    deleteGame: (_, args) => {
+      db.games = db.games.filter((g) => g.id !== args.id);
+      return db.games;
+    },
+    addGame: (_, args) => {
+      const newGame = { id: db.games.length + 1, ...args.game };
+      db.games.push(newGame);
+      return newGame;
+    },
   },
 };
 
