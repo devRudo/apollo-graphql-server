@@ -45,6 +45,7 @@ const typeDefs = `#graphql
   type Mutation{
     addGame(game: AddGameInput): Game
     deleteGame(id:ID!): [Game]
+    updateGame(id:ID!, game: AddGameInput): Game
   }
 
   input AddGameInput{
@@ -84,6 +85,15 @@ const resolvers = {
       const newGame = { id: db.games.length + 1, ...args.game };
       db.games.push(newGame);
       return newGame;
+    },
+    updateGame: (_, args) => {
+      db.games = db.games.map((g) => {
+        if (g.id === args.id) {
+          return { ...g, ...args.game };
+        }
+        return g;
+      });
+      return db.games.find((g) => g.id === args.id);
     },
   },
 };
