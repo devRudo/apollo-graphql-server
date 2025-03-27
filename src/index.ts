@@ -12,18 +12,22 @@ const typeDefs = `#graphql
     id: ID!
     title: String!
     platform: [String!]!
+    reviews: [Review!]
   }
 
   type Review {
     id: ID!
     rating: Int!
     content: String!
+    game: Game!
+    author: Author!
   }
 
   type Author {
     id: ID!
     name: String!
     verified: Boolean!
+    reviews: [Review!]
   }
 
   # The "Query" type is special: it lists all of the available queries that
@@ -49,6 +53,16 @@ const resolvers = {
     game: (_, args) => db.games.find((g) => g.id === args.id),
     authors: () => db.authors,
     author: (_, args) => db.authors.find((a) => a.id === args.id),
+  },
+  Game: {
+    reviews: (parent) => db.reviews.filter((r) => r.game_id === parent.id),
+  },
+  Author: {
+    reviews: (parent) => db.reviews.filter((r) => r.author_id === parent.id),
+  },
+  Review: {
+    game: (parent) => db.games.find((g) => g.id === parent.game_id),
+    author: (parent) => db.authors.find((r) => r.id === parent.author_id),
   },
 };
 
